@@ -309,12 +309,16 @@ void BTInorder (tBTNodePtr RootPtr)	{
 
     tStackP stackP; // vytvoreni zasobniku ukazatelu
     SInitP(&stackP); // inicializace zasobniku ukazatelu
+    tBTNodePtr item;
+
 
     Leftmost_Inorder(RootPtr, &stackP);
     while ( !SEmptyP(&stackP) ) {
-        BTWorkOut(STopPopP(&stackP)); // vypsani posledniho ukazatele + pop
+        item = STopPopP(&stackP);
+        BTWorkOut(item); // vypsani posledniho ukazatele + pop
+        Leftmost_Inorder(item->RPtr, &stackP);
         if (!SEmptyP(&stackP)) {
-            tBTNodePtr item = STopPopP(&stackP);
+            item = STopPopP(&stackP);
             if (item) {
                 BTWorkOut(item);
                 Leftmost_Inorder(item->RPtr, &stackP);
@@ -358,18 +362,20 @@ void BTPostorder (tBTNodePtr RootPtr)	{
     tStackB stackB; // vytvoreni zasobniku boolean hodnot
     SInitB(&stackB); // inicializace zasobniku boolean hodnot
 
+    bool zleva;
     Leftmost_Postorder(RootPtr, &stackP, &stackB);
     while ( !SEmptyP(&stackP) ) {
-        BTWorkOut(STopPopP(&stackP)); // vypsani posledniho ukazatele + pop
-        if (STopPopB(&stackB) == true) {
+        tBTNodePtr item = STopPopP(&stackP);
+        SPushP(&stackP, item);
+
+        zleva = STopPopB(&stackB);
+        if (zleva) {
             SPushB(&stackB, false);
-            tBTNodePtr item = STopPopP(&stackP);
-            SPushP(&stackP, item);
-            Leftmost_Postorder(item, &stackP, &stackB);
+            Leftmost_Postorder(item->RPtr, &stackP, &stackB);
         }
         else {
-            BTWorkOut(STopPopP(&stackP));
-            STopPopB(&stackB);
+            STopPopP(&stackP);
+            BTWorkOut(item);
         }
     }
 		
@@ -383,9 +389,27 @@ void BTDisposeTree (tBTNodePtr *RootPtr)	{
 ** Funkci implementujte nerekurzivně s využitím zásobníku ukazatelů.
 **/
 
-	
-	
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */	
+    tStackP stackP; // vytvoreni zasobniku ukazatelu
+    SInitP(&stackP); // inicializace zasobniku ukazatelu
+
+    tBTNodePtr ptr = *RootPtr;
+    while (ptr) {
+        //printf("stack %d\n", SEmptyP(&stackP));
+        if (ptr->RPtr) {
+            SPushP(&stackP, ptr->RPtr);
+        }
+        tBTNodePtr ptrToDelete = ptr;
+        ptr = ptr->LPtr;
+        ptrToDelete->LPtr = ptrToDelete->RPtr = NULL;
+        free(ptrToDelete); // BTWorkOut(ptrToDelete);
+        if (ptr == NULL) {
+            if (!SEmptyP(&stackP)) {
+                ptr = STopPopP(&stackP);
+            }
+        }
+    }
+    *RootPtr = NULL;
+
 }
 
 /* konec c402.c */
