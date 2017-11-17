@@ -182,8 +182,8 @@ void BTInit (tBTNodePtr *RootPtr)	{
 ** proto je třeba při práci s RootPtr použít dereferenční operátor *.
 **/
 	
-	
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */	
+    *RootPtr = NULL;
+
 }
 
 void BTInsert (tBTNodePtr *RootPtr, int Content) {
@@ -196,10 +196,51 @@ void BTInsert (tBTNodePtr *RootPtr, int Content) {
 ** se ve stromu může vyskytnout nejvýše jednou). Pokud se vytváří nový uzel,
 ** vzniká vždy jako list stromu. Funkci implementujte nerekurzivně.
 **/
-	
-	
+
+    if (RootPtr) { // pokud je ukazatel na root platny
+        tBTNodePtr searchItem = (*RootPtr);
+        bool found = false;
+
+        if (searchItem) {
+            while (!found) {
+                if (Content < searchItem->Cont) { // vyhledavani pokracuje v levem podstromu
+                    if (searchItem->LPtr != NULL) {
+                        searchItem = searchItem->LPtr; // vyhledavani pokracuje vlevo
+                    } else
+                        break; // novy prvek se bude vkladat vlevo k prvku searchItem
+                } else if (Content > searchItem->Cont) { // vyhledavani pokracuje v pravem podstromu
+                    if (searchItem->RPtr != NULL) {
+                        searchItem = searchItem->RPtr; // vyhledavani pokracuje vlevo
+                    } else
+                        break; // novy prvek se bude vkladat vpravo k prvku searchItem
+                } else { // exituje uzel se stejnym klicem
+                    found = true; // novy prvek se nebude vkladat
+                }
+            }
+        }
+
+        if (!found) { // pokud nebyl nalezen prvek se stejnym klicem: vlozeni noveho prvku
+            tBTNodePtr newitem;
+            if ((newitem = (tBTNodePtr) malloc(sizeof(struct tBTNode))) == NULL) {
+                return;
+            }
+            // inicializace
+            newitem->LPtr = NULL;
+            newitem->RPtr = NULL;
+            newitem->Cont = Content;
+            // vlozeni
+            if (searchItem == NULL) { // pouze pokud je strom prazdny
+                (*RootPtr) = newitem;
+            }
+            else if (Content < searchItem->Cont) { // vlozeni vlevo od nalezeneho
+                searchItem->LPtr = newitem;
+            }
+            else { // vlozeni vpravo od nalezeneho
+                searchItem->RPtr = newitem;
+            }
+        }
+    }
 		
-	 solved = FALSE;		  /* V případě řešení smažte tento řádek! */	
 }
 
 /*                                  PREORDER                                  */
