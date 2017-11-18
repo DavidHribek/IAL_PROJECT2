@@ -210,7 +210,7 @@ void BTInsert (tBTNodePtr *RootPtr, int Content) {
                         break; // novy prvek se bude vkladat vlevo k prvku searchItem
                 } else if (Content > searchItem->Cont) { // vyhledavani pokracuje v pravem podstromu
                     if (searchItem->RPtr != NULL) {
-                        searchItem = searchItem->RPtr; // vyhledavani pokracuje vlevo
+                        searchItem = searchItem->RPtr; // vyhledavani pokracuje vpravo
                     } else
                         break; // novy prvek se bude vkladat vpravo k prvku searchItem
                 } else { // exituje uzel se stejnym klicem
@@ -394,14 +394,13 @@ void BTDisposeTree (tBTNodePtr *RootPtr)	{
 
     tBTNodePtr ptr = *RootPtr;
     while (ptr) {
-        //printf("stack %d\n", SEmptyP(&stackP));
         if (ptr->RPtr) {
             SPushP(&stackP, ptr->RPtr);
         }
         tBTNodePtr ptrToDelete = ptr;
         ptr = ptr->LPtr;
-        ptrToDelete->LPtr = ptrToDelete->RPtr = NULL;
-        free(ptrToDelete); // BTWorkOut(ptrToDelete);
+        ptrToDelete->LPtr = ptrToDelete->RPtr = NULL; // anulovani ukazatelu prvku
+        free(ptrToDelete); // uvolneni prvku
         if (ptr == NULL) {
             if (!SEmptyP(&stackP)) {
                 ptr = STopPopP(&stackP);
