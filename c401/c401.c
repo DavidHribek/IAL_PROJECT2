@@ -191,12 +191,14 @@ void BSTDelete (tBSTNodePtr *RootPtr, char K) 		{
                 *RootPtr = NULL;
             }
             else if ( ((*RootPtr)->LPtr != NULL) && ((*RootPtr)->RPtr == NULL) ) { // pokud ma uzel jen levy podstrom
-                free(*RootPtr);
+                tBSTNodePtr itemToDelete = *RootPtr;
                 *RootPtr = (*RootPtr)->LPtr;
+                free(itemToDelete);
             }
             else if ( ((*RootPtr)->RPtr != NULL) && ((*RootPtr)->LPtr == NULL) ) { // pokud ma uzel jen pravy podstrom
-                free(*RootPtr);
+                tBSTNodePtr itemToDelete = *RootPtr;
                 *RootPtr = (*RootPtr)->RPtr;
+                free(itemToDelete);
             }
             else { // pokud ma ruseny uzel oba podstromy
                 ReplaceByRightmost((*RootPtr), &((*RootPtr)->LPtr));
