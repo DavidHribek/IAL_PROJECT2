@@ -89,8 +89,14 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
     if (ptrht) { // pokud je ukazatel na tabulku validni
         for (int i = 0; i < HTSIZE; i++) {
             if ( (*ptrht)[i] != NULL ) { // pokud je na danem indexu ukazatel na synonymum
-                if ( (*ptrht)[i]->key == key ) {
-                    return (*ptrht)[i];
+                tHTItem *item = (*ptrht)[i];
+                while (item) {
+                    if (item->key == key) {
+                        return item; // pokud je nalezen prvek s klicem
+                    }
+                    else {
+                        item = item->ptrnext;
+                    }
                 }
             }
         }
@@ -114,20 +120,21 @@ tHTItem* htSearch ( tHTable* ptrht, tKey key ) {
 void htInsert ( tHTable* ptrht, tKey key, tData data ) {
 
     if (ptrht) { // pokud je ukazatel na tabulku validni
-        tHTItem *newitem; // novy prvek
-        if ( (newitem = (tHTItem*)malloc(sizeof(tHTItem))) == NULL ) {
-            return; // chyba pri vytvareni noveho prvku
-        }
-        // inicializace noveho prvku
-        newitem->key = key;
-        newitem->data = data;
-        newitem->ptrnext = NULL;
-        // vlozeni prvku
+        // zjisteni, zda prvku s klicem uz existuje
         tHTItem *item = htSearch(ptrht, key);
-        if (item) {
+        if (item) { // aktualizace dat prvku
             item->data = data;
         }
-        else {
+        else { // vlozeni noveho prvku
+            // alokovani pameti pro novy prvek
+            tHTItem *newitem; // novy prvek
+            if ( (newitem = (tHTItem*)malloc(sizeof(tHTItem))) == NULL ) {
+                return; // chyba pri vytvareni noveho prvku
+            }
+            // inicializace noveho prvku
+            newitem->key = key;
+            newitem->data = data;
+            // vlozeni noveho prvku
             tHTItem *itemToJoin = (*ptrht)[hashCode(key)];
             newitem->ptrnext = itemToJoin;
             (*ptrht)[hashCode(key)] = newitem;
@@ -170,11 +177,26 @@ tData* htRead ( tHTable* ptrht, tKey key ) {
 void htDelete ( tHTable* ptrht, tKey key ) {
 
     if (ptrht) { // pokud ukazatel na tabulku je validni
-        int indexToDelete = hashCode(key);
-        tHTItem *itemToDelete = (*ptrht)[indexToDelete];
-        if (itemToDelete) { // pokud je co mazat
-            (*ptrht)[indexToDelete] = (*ptrht)[indexToDelete]->ptrnext;
-            free(itemToDelete);
+        tHTItem* item = (*ptrht)[hashCode(key)];
+        tHTItem* prevItem;
+        if(item) { // pokud existuje prvek s danym klicem
+            if (item->key == key) {
+                (*ptrht)[hashCode(key)] = item->ptrnext;
+                free(item);
+                return;
+            }
+
+            prevItem = item; // pamatovani predchoziho prvku
+            item = item->ptrnext; // posunuti na dalsi prvek
+            while (item) { // vyhledani prvku ke smazani
+                if (item->key == key) {
+                    prevItem->ptrnext = item->ptrnext;
+                    free(item);
+                    return;
+                }
+                prevItem = item;
+                item = item->ptrnext;
+            }
         }
     }
 
@@ -189,11 +211,10 @@ void htClearAll ( tHTable* ptrht ) {
 
     if (ptrht) { // pokud je ukazatel na tabulku validni
         for (int i = 0; i < HTSIZE; i++) {
-            if ( (*ptrht)[i] ) { // pokud dany index tabulky neni prazdny
-                tKey k = (*ptrht)[i]->key;
-                while ( (*ptrht)[i] != NULL ) {
-                    htDelete(ptrht,k);
-                }
+            while ( (*ptrht)[i] != NULL ) { // dokud dany index tabulky neni prazdny
+                tHTItem* itemToDelete = (*ptrht)[i];
+                (*ptrht)[i] = itemToDelete->ptrnext;
+                free(itemToDelete);
             }
         }
     }
