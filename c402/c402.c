@@ -253,12 +253,10 @@ void Leftmost_Preorder (tBTNodePtr ptr, tStackP *Stack)	{
 ** a ukazatele na ně is uložíme do zásobníku.
 **/
 
-    while (ptr) {
-        if (ptr) { // pokud dany uzel existuje
-            BTWorkOut(ptr); // zpracovani uzlu
-            SPushP(Stack, ptr); // ulozeni ukazatele na uzel do zasobniku
-            ptr = ptr->LPtr; // prechod na levy podstrom
-        }
+    while (ptr) { // dokud dany uzel existuje
+        BTWorkOut(ptr); // zpracovani uzlu
+        SPushP(Stack, ptr); // ulozeni ukazatele na uzel do zasobniku
+        ptr = ptr->LPtr; // prechod na levy podstrom
     }
 	
 }
@@ -291,11 +289,9 @@ void Leftmost_Inorder(tBTNodePtr ptr, tStackP *Stack)		{
 ** zásobníku. 
 **/
 
-    while (ptr) {
-        if (ptr) { // pokud dany uzel existuje
-            SPushP(Stack, ptr); // ulozeni ukazatele na uzel do zasobniku
-            ptr = ptr->LPtr; // prechod na levy podstrom
-        }
+    while (ptr) { // dokud dany uzel existuje
+        SPushP(Stack, ptr); // ulozeni ukazatele na uzel do zasobniku
+        ptr = ptr->LPtr; // prechod na levy podstrom
     }
 
 }
@@ -311,19 +307,11 @@ void BTInorder (tBTNodePtr RootPtr)	{
     SInitP(&stackP); // inicializace zasobniku ukazatelu
     tBTNodePtr item;
 
-
     Leftmost_Inorder(RootPtr, &stackP);
     while ( !SEmptyP(&stackP) ) {
         item = STopPopP(&stackP);
         BTWorkOut(item); // vypsani posledniho ukazatele + pop
         Leftmost_Inorder(item->RPtr, &stackP);
-        if (!SEmptyP(&stackP)) {
-            item = STopPopP(&stackP);
-            if (item) {
-                BTWorkOut(item);
-                Leftmost_Inorder(item->RPtr, &stackP);
-            }
-        }
     }
 	
 }
@@ -394,14 +382,14 @@ void BTDisposeTree (tBTNodePtr *RootPtr)	{
 
     tBTNodePtr ptr = *RootPtr;
     while (ptr) {
-        if (ptr->RPtr) {
+        if (ptr->RPtr) { // ukazatel na pravy podstrom si ulozime na zasobnik
             SPushP(&stackP, ptr->RPtr);
         }
-        tBTNodePtr ptrToDelete = ptr;
-        ptr = ptr->LPtr;
-        ptrToDelete->LPtr = ptrToDelete->RPtr = NULL; // anulovani ukazatelu prvku
-        free(ptrToDelete); // uvolneni prvku
-        if (ptr == NULL) {
+        tBTNodePtr ptrToDelete = ptr; // ukazatel na aktualni uzel si ulozime pro pozdejsi smazani
+        ptr = ptr->LPtr; // prejdeme na levy podstrom
+        ptrToDelete->LPtr = ptrToDelete->RPtr = NULL; // anulovani ukazatelu mazaneho
+        free(ptrToDelete); // uvolneni mazaneho prvku
+        if (ptr == NULL) { // pokud jsme dosli nakonec leve diagonaly: nacteme si ukazatel ze zasobniku (zasobnik uchovava ukazatele na nezpracovane prave podstromy)
             if (!SEmptyP(&stackP)) {
                 ptr = STopPopP(&stackP);
             }
