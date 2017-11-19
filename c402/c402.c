@@ -328,11 +328,9 @@ void Leftmost_Postorder (tBTNodePtr ptr, tStackP *StackP, tStackB *StackB) {
 **/
 
     while (ptr) {
-        if (ptr) { // pokud dany uzel existuje
-            SPushP(StackP, ptr); // ulozeni ukazatele na uzel do zasobniku
-            SPushB(StackB, true); // ulozeni informace, ze byl uzel navstiven poprve
-            ptr = ptr->LPtr; // prechod na levy podstrom
-        }
+        SPushP(StackP, ptr); // ulozeni ukazatele na uzel do zasobniku
+        SPushB(StackB, true); // ulozeni informace, ze byl uzel navstiven poprve
+        ptr = ptr->LPtr; // prechod na levy podstrom
     }
 	
 }
@@ -352,8 +350,8 @@ void BTPostorder (tBTNodePtr RootPtr)	{
 
     bool zleva;
     Leftmost_Postorder(RootPtr, &stackP, &stackB);
-    while ( !SEmptyP(&stackP) ) {
-        tBTNodePtr item = STopPopP(&stackP);
+    while ( !SEmptyP(&stackP) ) { // dokud neni zasobnik ukazatelu prazdny
+        tBTNodePtr item = STopPopP(&stackP); // nacteni ukazatele ze zasobniku
         SPushP(&stackP, item);
 
         zleva = STopPopB(&stackB);
